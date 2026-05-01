@@ -694,6 +694,25 @@ def write_html(stats: dict):
   .legend-table td {{ padding: .35rem .5rem; vertical-align: middle; }}
   .legend-table td:first-child {{ width: 3rem; }}
   .legend-hint {{ color: var(--muted); font-size: .75rem; padding-left: 1rem; }}
+
+  .filter-bar {{ display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: .6rem 1rem; margin-bottom: 2rem; }}
+  .filter-bar .filter-label {{ font-size: .8rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin-right: .25rem; }}
+  .filter-btn {{ background: transparent; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); font-size: .82rem; padding: .3rem .75rem; cursor: pointer; transition: all .15s; }}
+  .filter-btn:hover {{ border-color: var(--accent); color: var(--text); }}
+  .filter-btn.active {{ background: var(--accent); border-color: var(--accent); color: #0d1117; font-weight: 700; }}
+  .filter-status {{ margin-left: auto; font-size: .78rem; color: var(--muted); }}
+
+  .dos-donts {{ display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }}
+  @media (max-width: 700px) {{ .dos-donts {{ grid-template-columns: 1fr; }} }}
+  .dos-block, .donts-block {{ border-radius: 8px; padding: 1.1rem 1.25rem; }}
+  .dos-block {{ background: #0d1f0f; border: 1px solid #2a4a2a; }}
+  .donts-block {{ background: #1f0d0d; border: 1px solid #4a2a2a; }}
+  .dos-block h3 {{ color: var(--green); font-size: .85rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin-bottom: .85rem; }}
+  .donts-block h3 {{ color: var(--red); font-size: .85rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin-bottom: .85rem; }}
+  .dos-block li, .donts-block li {{ font-size: .85rem; line-height: 1.65; margin-bottom: .4rem; margin-left: 1.1rem; }}
+  .dos-block li::marker {{ color: var(--green); }}
+  .donts-block li::marker {{ color: var(--red); }}
+  .conclusion-text {{ line-height: 1.8; font-size: .88rem; margin-bottom: 1.25rem; color: var(--text); }}
 </style>
 </head>
 <body>
@@ -705,6 +724,17 @@ def write_html(stats: dict):
 </header>
 
 <div class="container">
+
+  <div class="filter-bar">
+    <span class="filter-label">Zeitraum</span>
+    <button class="filter-btn active" data-days="">Alle</button>
+    <button class="filter-btn" data-days="180">180 Tage</button>
+    <button class="filter-btn" data-days="60">60 Tage</button>
+    <button class="filter-btn" data-days="30">30 Tage</button>
+    <button class="filter-btn" data-days="7">7 Tage</button>
+    <button class="filter-btn" data-days="1">1 Tag</button>
+    <span class="filter-status" id="filterStatus"></span>
+  </div>
 
   <section>
     <h2>Übersicht</h2>
@@ -772,6 +802,42 @@ def write_html(stats: dict):
 {kurzauswertung}
 
   <section>
+    <h2>Schlussfolgerungen – Wie vermeidet man eine Löschung?</h2>
+    <p class="conclusion-text">
+      Die Daten zeigen klare Muster: Die meisten Löschungen sind vermeidbar. Fast die Hälfte aller
+      gelöschten Artikel scheitert an fehlender Relevanz – einem Kriterium, das Wikipedia transparent
+      dokumentiert. Wer die Relevanzkriterien kennt und Artikel sorgfältig vorbereitet, hat gute Chancen,
+      eine Löschung zu verhindern. Die folgenden Dos und Don'ts fassen die wichtigsten Erkenntnisse zusammen.
+    </p>
+    <div class="dos-donts">
+      <div class="dos-block">
+        <h3>✓ Dos</h3>
+        <ul>
+          <li><strong>Relevanz vorab prüfen.</strong> Die Wikipedia-Relevanzkriterien (WP:RK) vor dem Anlegen eines Artikels lesen. Bei Unsicherheit den Relevanzcheck nutzen.</li>
+          <li><strong>Unabhängige Quellen einbinden.</strong> Mindestens zwei voneinander unabhängige, überregionale Sekundärquellen belegen die Relevanz des Themas.</li>
+          <li><strong>Entwurf im Benutzernamensraum entwickeln.</strong> Neue Artikel zunächst privat ausarbeiten, Feedback einholen, erst dann in den Artikelnamensraum verschieben.</li>
+          <li><strong>Neutralen Ton wahren.</strong> Sachlich, ohne Wertungen schreiben. Wikipedia ist kein Werbemittel und kein Presseportal.</li>
+          <li><strong>Struktur einhalten.</strong> Einleitung, Fließtext, Belege als Mindestanforderung. Artikel sollte eigenständig lesbar sein.</li>
+          <li><strong>Vor dem Anlegen suchen.</strong> Prüfen, ob das Thema bereits in einem anderen Artikel behandelt wird. Weiterleitung statt Doppelartikel anlegen.</li>
+          <li><strong>Auf Diskussionen reagieren.</strong> Wenn ein Löschantrag gestellt wird, sachlich antworten und fehlende Belege oder Relevanzhinweise nachliefern.</li>
+        </ul>
+      </div>
+      <div class="donts-block">
+        <h3>✗ Don'ts</h3>
+        <ul>
+          <li><strong>Keinen Artikel über sich selbst anlegen.</strong> Interessenkonflikte führen fast immer zu werblichem Ton und fehlendem Außenblick.</li>
+          <li><strong>Keine Primärquellen als einzige Belege.</strong> Eigene Website, Pressemitteilungen oder Social-Media-Profile reichen nicht – Wikipedia verlangt unabhängige Berichterstattung.</li>
+          <li><strong>Keine Marketing-Sprache.</strong> Superlative, Ausrufezeichen, Formulierungen wie „führend", „innovativ" oder „einzigartig" sind sofortige Löschsignale.</li>
+          <li><strong>Kein Stub veröffentlichen.</strong> Ein Artikel, der nur aus zwei Sätzen besteht, wird häufig als qualitativ unzureichend eingestuft.</li>
+          <li><strong>Regionale Bedeutung nicht mit enzyklopädischer Relevanz verwechseln.</strong> Wer lokal bekannt ist, muss das nicht in Wikipedia dokumentiert bekommen.</li>
+          <li><strong>Keine urheberrechtlich geschützten Texte kopieren.</strong> Auch übersetzt oder leicht umformuliert gilt das als URV und führt zur sofortigen Löschung.</li>
+          <li><strong>Löschanträge nicht ignorieren.</strong> Wer nicht reagiert, verliert. Auch berechtigte Artikel werden gelöscht, wenn niemand für sie eintritt.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
     <h2>Legende</h2>
     <div class="legend-grid">
 
@@ -835,7 +901,6 @@ def write_html(stats: dict):
 
 <script>
 const DATA = {data_json};
-
 const A_LABELS = {a_labels_json};
 const B_LABELS = {b_labels_json};
 const E_LABELS = {e_labels_json};
@@ -844,31 +909,40 @@ const COLORS_A = ["#79b8ff","#58a6ff","#d29922","#e3b341","#3fb950","#56d364","#
 const COLORS_E = ["#f85149","#3fb950","#58a6ff","#d29922","#bc8cff","#8b949e","#c084fc"];
 const COLORS_B = ["#79b8ff","#58a6ff","#3fb950","#d29922","#56d364","#bc8cff","#e3b341","#8b949e"];
 
-document.getElementById("subtitle").textContent =
-  `Stichprobe der letzten 180 Tage · ${{DATA.total}} kodierte Diskussionen · Stand: ${{DATA.generated_at}}`;
-document.getElementById("genDate").textContent = DATA.generated_at;
+// -----------------------------------------------------------------------
+// Datumsparsing für Zeitfilter (Format: "02.Nov.2025")
+// -----------------------------------------------------------------------
+const DE_MON = {{Jan:0,Feb:1,'Mär':2,Apr:3,Mai:4,Jun:5,Jul:6,Aug:7,Sep:8,Okt:9,Nov:10,Dez:11}};
+function parseDatum(s) {{
+  const [d, m, y] = s.split('.');
+  return new Date(parseInt(y), DE_MON[m] ?? 0, parseInt(d));
+}}
 
-// --- Cards ---
-const e = DATA.e_freq;
-const cards = [
-  {{ num: DATA.total, lbl: "Diskussionen gesamt", cls: "" }},
-  {{ num: e["E1"] || 0, lbl: "Gelöscht", cls: "deleted" }},
-  {{ num: e["E2"] || 0, lbl: "Behalten", cls: "kept" }},
-  {{ num: e["E6"] || 0, lbl: "Noch offen", cls: "open" }},
-  {{ num: e["E7"] || 0, lbl: "SLA", cls: "sla" }},
-  {{ num: e["E3"] || 0, lbl: "LAZ", cls: "" }},
-];
-document.getElementById("cards").innerHTML = cards.map(c =>
-  `<div class="card ${{c.cls}}"><div class="num">${{c.num}}</div><div class="lbl">${{c.lbl}}</div></div>`
-).join("");
+function filterByDays(rows, days) {{
+  if (!days) return rows;
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - days);
+  return rows.filter(r => parseDatum(r.Datum) >= cutoff);
+}}
 
-// --- Chart helpers ---
-function barChart(id, labels, values, colors, horizontal=true) {{
-  new Chart(document.getElementById(id), {{
+function countBy(rows, key) {{
+  const c = {{}};
+  rows.forEach(r => {{ c[r[key]] = (c[r[key]] || 0) + 1; }});
+  return Object.fromEntries(Object.entries(c).sort((a,b) => b[1]-a[1]));
+}}
+
+// -----------------------------------------------------------------------
+// Chart-Instanzen
+// -----------------------------------------------------------------------
+const charts = {{}};
+
+function makeBarChart(id, labels, values, colors) {{
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(document.getElementById(id), {{
     type: "bar",
     data: {{ labels, datasets: [{{ data: values, backgroundColor: colors, borderRadius: 4, borderSkipped: false }}] }},
     options: {{
-      indexAxis: horizontal ? "y" : "x",
+      indexAxis: "y",
       responsive: true,
       plugins: {{ legend: {{ display: false }} }},
       scales: {{
@@ -879,62 +953,126 @@ function barChart(id, labels, values, colors, horizontal=true) {{
   }});
 }}
 
-function donutChart(id, labels, values, colors) {{
-  new Chart(document.getElementById(id), {{
+function makeDonutChart(id, labels, values, colors) {{
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(document.getElementById(id), {{
     type: "doughnut",
     data: {{ labels, datasets: [{{ data: values, backgroundColor: colors, borderColor: "#0d1117", borderWidth: 2 }}] }},
     options: {{
       responsive: true,
-      plugins: {{
-        legend: {{ position: "right", labels: {{ color: "#e6edf3", font: {{ size: 11 }}, padding: 12 }} }}
+      plugins: {{ legend: {{ position: "right", labels: {{ color: "#e6edf3", font: {{ size: 11 }}, padding: 12 }} }} }}
+    }}
+  }});
+}}
+
+function makeTimelineChart(rows) {{
+  const tl = countBy(rows, 'Datum');
+  const tKeys = Object.keys(tl).sort();
+  if (charts["chartTimeline"]) charts["chartTimeline"].destroy();
+  charts["chartTimeline"] = new Chart(document.getElementById("chartTimeline"), {{
+    type: "bar",
+    data: {{ labels: tKeys, datasets: [{{ data: tKeys.map(k => tl[k]), backgroundColor: "#1f6feb", borderRadius: 3 }}] }},
+    options: {{
+      responsive: true,
+      plugins: {{ legend: {{ display: false }} }},
+      scales: {{
+        x: {{ grid: {{ display: false }}, ticks: {{ color: "#8b949e", maxRotation: 45, font: {{ size: 10 }} }} }},
+        y: {{ grid: {{ color: "#21262d" }}, ticks: {{ color: "#8b949e" }} }}
       }}
     }}
   }});
 }}
 
-// A-Codes bar
-const aKeys = Object.keys(DATA.a_freq);
-barChart("chartA",
-  aKeys.map(k => `${{k}} ${{A_LABELS[k] || ""}}`),
-  aKeys.map(k => DATA.a_freq[k]),
-  COLORS_A
-);
+// -----------------------------------------------------------------------
+// Hauptfunktion: alles neu rendern für gegebene Zeilenmenge
+// -----------------------------------------------------------------------
+function refresh(rows) {{
+  const total = rows.length;
+  const aFreq = countBy(rows, 'A-Code');
+  const bFreq = countBy(rows, 'B-Code');
+  const eFreq = countBy(rows, 'Ergebnis-Code');
 
-// E-Codes donut
-const eKeys = Object.keys(DATA.e_freq);
-donutChart("chartE",
-  eKeys.map(k => `${{E_LABELS[k] || k}} (${{DATA.e_freq[k]}})`),
-  eKeys.map(k => DATA.e_freq[k]),
-  COLORS_E
-);
+  // Karten
+  const cards = [
+    {{ num: total,              lbl: "Diskussionen", cls: "" }},
+    {{ num: eFreq["E1"] || 0,  lbl: "Gelöscht",     cls: "deleted" }},
+    {{ num: eFreq["E2"] || 0,  lbl: "Behalten",     cls: "kept" }},
+    {{ num: eFreq["E6"] || 0,  lbl: "Noch offen",   cls: "open" }},
+    {{ num: eFreq["E7"] || 0,  lbl: "SLA",          cls: "sla" }},
+    {{ num: eFreq["E3"] || 0,  lbl: "LAZ",          cls: "" }},
+  ];
+  document.getElementById("cards").innerHTML = cards.map(c =>
+    `<div class="card ${{c.cls}}"><div class="num">${{c.num}}</div><div class="lbl">${{c.lbl}}</div></div>`
+  ).join("");
 
-// B-Codes bar
-const bKeys = Object.keys(DATA.b_freq);
-barChart("chartB",
-  bKeys.map(k => `${{k}} ${{B_LABELS[k] || ""}}`),
-  bKeys.map(k => DATA.b_freq[k]),
-  COLORS_B
-);
+  // Charts
+  const aKeys = Object.keys(aFreq);
+  makeBarChart("chartA", aKeys.map(k=>`${{k}} ${{A_LABELS[k]||""}}`), aKeys.map(k=>aFreq[k]), COLORS_A);
 
-// Timeline
-const tKeys = Object.keys(DATA.timeline);
-new Chart(document.getElementById("chartTimeline"), {{
-  type: "bar",
-  data: {{
-    labels: tKeys,
-    datasets: [{{ data: tKeys.map(k => DATA.timeline[k]), backgroundColor: "#1f6feb", borderRadius: 3 }}]
-  }},
-  options: {{
-    responsive: true,
-    plugins: {{ legend: {{ display: false }} }},
-    scales: {{
-      x: {{ grid: {{ display: false }}, ticks: {{ color: "#8b949e", maxRotation: 45, font: {{ size: 10 }} }} }},
-      y: {{ grid: {{ color: "#21262d" }}, ticks: {{ color: "#8b949e" }} }}
-    }}
-  }}
+  const eKeys = Object.keys(eFreq);
+  makeDonutChart("chartE", eKeys.map(k=>`${{E_LABELS[k]||k}} (${{eFreq[k]}})`), eKeys.map(k=>eFreq[k]), COLORS_E);
+
+  const bKeys = Object.keys(bFreq);
+  makeBarChart("chartB", bKeys.map(k=>`${{k}} ${{B_LABELS[k]||""}}`), bKeys.map(k=>bFreq[k]), COLORS_B);
+
+  makeTimelineChart(rows);
+
+  // Tabelle
+  renderTable(rows);
+}}
+
+// -----------------------------------------------------------------------
+// Tabelle
+// -----------------------------------------------------------------------
+let currentRows = DATA.rows;
+
+function renderTable(rows) {{
+  currentRows = rows;
+  const q  = document.getElementById("search").value.toLowerCase();
+  const fa = document.getElementById("filterA").value;
+  const fb = document.getElementById("filterB").value;
+  const fe = document.getElementById("filterE").value;
+  const filtered = rows.filter(r =>
+    (!q  || r.Artikelname.toLowerCase().includes(q)) &&
+    (!fa || r["A-Code"] === fa) &&
+    (!fb || r["B-Code"] === fb) &&
+    (!fe || r["Ergebnis-Code"] === fe)
+  );
+  document.getElementById("rowCount").textContent = `${{filtered.length}} von ${{rows.length}} Einträgen`;
+  document.getElementById("tbody").innerHTML = filtered.map(r => `
+    <tr>
+      <td>${{r.Datum}}</td>
+      <td class="wrap"><a href="${{r.URL}}" target="_blank">${{r.Artikelname}}</a></td>
+      <td><span class="badge badge-${{r["A-Code"]}}">${{r["A-Code"]}}</span> <span style="color:#8b949e;font-size:.78rem">${{A_LABELS[r["A-Code"]]||""}}</span></td>
+      <td><span style="color:#8b949e;font-size:.78rem">${{B_LABELS[r["B-Code"]]||r["B-Code"]}}</span></td>
+      <td><span class="badge badge-${{r["Ergebnis-Code"]}}">${{E_LABELS[r["Ergebnis-Code"]]||r["Ergebnis-Code"]}}</span></td>
+      <td style="text-align:right;color:#8b949e">${{r["Intensität"]}}</td>
+    </tr>`).join("");
+}}
+
+document.getElementById("search").addEventListener("input", () => renderTable(currentRows));
+document.getElementById("filterA").addEventListener("change", () => renderTable(currentRows));
+document.getElementById("filterB").addEventListener("change", () => renderTable(currentRows));
+document.getElementById("filterE").addEventListener("change", () => renderTable(currentRows));
+
+// -----------------------------------------------------------------------
+// Filter-Buttons
+// -----------------------------------------------------------------------
+document.querySelectorAll(".filter-btn").forEach(btn => {{
+  btn.addEventListener("click", () => {{
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    const days = btn.dataset.days ? parseInt(btn.dataset.days) : null;
+    const filtered = filterByDays(DATA.rows, days);
+    const label = days ? `Letzte ${{days}} Tag${{days===1?"":"e"}} · ${{filtered.length}} Diskussionen` : `Gesamter Zeitraum · ${{DATA.rows.length}} Diskussionen`;
+    document.getElementById("filterStatus").textContent = label;
+    refresh(filtered);
+  }});
 }});
 
-// --- Intensity cards ---
+// -----------------------------------------------------------------------
+// Intensity cards (einmalig aus Gesamtdaten)
+// -----------------------------------------------------------------------
 const ig = document.getElementById("intensityGrid");
 Object.entries(DATA.top_intensity).sort().forEach(([code, info]) => {{
   ig.innerHTML += `
@@ -942,55 +1080,27 @@ Object.entries(DATA.top_intensity).sort().forEach(([code, info]) => {{
       <span class="intensity-badge badge badge-${{code}}">${{code}}</span>
       <div class="intensity-info">
         <div class="name"><a href="${{info.url}}" target="_blank">${{info.name}}</a></div>
-        <div class="meta">${{A_LABELS[code] || code}} &nbsp;·&nbsp; ${{info.score}} Beiträge</div>
+        <div class="meta">${{A_LABELS[code]||code}} &nbsp;·&nbsp; ${{info.score}} Beiträge</div>
       </div>
     </div>`;
 }});
 
-// --- Table ---
-const tbody = document.getElementById("tbody");
+// -----------------------------------------------------------------------
+// Dropdowns befüllen & initialisieren
+// -----------------------------------------------------------------------
 const selA = document.getElementById("filterA");
 const selB = document.getElementById("filterB");
 const selE = document.getElementById("filterE");
+Object.keys(countBy(DATA.rows,"A-Code")).forEach(k => {{ selA.innerHTML += `<option value="${{k}}">${{k}} – ${{A_LABELS[k]||k}}</option>`; }});
+Object.keys(countBy(DATA.rows,"B-Code")).forEach(k => {{ selB.innerHTML += `<option value="${{k}}">${{k}} – ${{B_LABELS[k]||k}}</option>`; }});
+Object.keys(countBy(DATA.rows,"Ergebnis-Code")).forEach(k => {{ selE.innerHTML += `<option value="${{k}}">${{k}} – ${{E_LABELS[k]||k}}</option>`; }});
 
-Object.entries(DATA.a_freq).forEach(([k]) => {{
-  selA.innerHTML += `<option value="${{k}}">${{k}} – ${{A_LABELS[k] || k}}</option>`;
-}});
-Object.entries(DATA.b_freq).forEach(([k]) => {{
-  selB.innerHTML += `<option value="${{k}}">${{k}} – ${{B_LABELS[k] || k}}</option>`;
-}});
-Object.entries(DATA.e_freq).forEach(([k]) => {{
-  selE.innerHTML += `<option value="${{k}}">${{k}} – ${{E_LABELS[k] || k}}</option>`;
-}});
+document.getElementById("subtitle").textContent =
+  `${{DATA.total}} kodierte Diskussionen · Stand: ${{DATA.generated_at}}`;
+document.getElementById("genDate").textContent = DATA.generated_at;
+document.getElementById("filterStatus").textContent = `Gesamter Zeitraum · ${{DATA.rows.length}} Diskussionen`;
 
-function renderTable() {{
-  const q  = document.getElementById("search").value.toLowerCase();
-  const fa = selA.value;
-  const fb = selB.value;
-  const fe = selE.value;
-  const filtered = DATA.rows.filter(r =>
-    (!q  || r.Artikelname.toLowerCase().includes(q)) &&
-    (!fa || r["A-Code"] === fa) &&
-    (!fb || r["B-Code"] === fb) &&
-    (!fe || r["Ergebnis-Code"] === fe)
-  );
-  document.getElementById("rowCount").textContent = `${{filtered.length}} von ${{DATA.total}} Einträgen`;
-  tbody.innerHTML = filtered.map(r => `
-    <tr>
-      <td>${{r.Datum}}</td>
-      <td class="wrap"><a href="${{r.URL}}" target="_blank">${{r.Artikelname}}</a></td>
-      <td><span class="badge badge-${{r["A-Code"]}}">${{r["A-Code"]}}</span> <span style="color:#8b949e;font-size:.78rem">${{A_LABELS[r["A-Code"]] || ""}}</span></td>
-      <td><span style="color:#8b949e;font-size:.78rem">${{B_LABELS[r["B-Code"]] || r["B-Code"]}}</span></td>
-      <td><span class="badge badge-${{r["Ergebnis-Code"]}}">${{E_LABELS[r["Ergebnis-Code"]] || r["Ergebnis-Code"]}}</span></td>
-      <td style="text-align:right;color:#8b949e">${{r["Intensität"]}}</td>
-    </tr>`).join("");
-}}
-
-document.getElementById("search").addEventListener("input", renderTable);
-selA.addEventListener("change", renderTable);
-selB.addEventListener("change", renderTable);
-selE.addEventListener("change", renderTable);
-renderTable();
+refresh(DATA.rows);
 </script>
 </body>
 </html>
