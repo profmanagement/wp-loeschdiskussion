@@ -729,10 +729,10 @@ def write_html(stats: dict):
     <span class="filter-label">Zeitraum</span>
     <button class="filter-btn active" data-days="">Alle</button>
     <button class="filter-btn" data-days="180">180 Tage</button>
+    <button class="filter-btn" data-days="90">90 Tage</button>
     <button class="filter-btn" data-days="60">60 Tage</button>
     <button class="filter-btn" data-days="30">30 Tage</button>
-    <button class="filter-btn" data-days="7">7 Tage</button>
-    <button class="filter-btn" data-days="1">1 Tag</button>
+    <button class="filter-btn" data-days="14">14 Tage</button>
     <span class="filter-status" id="filterStatus"></span>
   </div>
 
