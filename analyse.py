@@ -500,6 +500,18 @@ def write_html(stats: dict):
   .table-wrap {{ overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; max-height: 600px; overflow-y: auto; }}
 
   footer {{ text-align: center; padding: 2rem; color: var(--muted); font-size: .8rem; border-top: 1px solid var(--border); }}
+
+  .legend-grid {{ display: flex; flex-direction: column; gap: 1.25rem; }}
+  .legend-cols {{ display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }}
+  @media (max-width: 700px) {{ .legend-cols {{ grid-template-columns: 1fr; }} }}
+  .legend-block {{ background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; }}
+  .legend-title {{ font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: .75rem; }}
+  .legend-table {{ border-collapse: collapse; width: 100%; font-size: .82rem; }}
+  .legend-table tr {{ border-bottom: 1px solid var(--border); }}
+  .legend-table tr:last-child {{ border-bottom: none; }}
+  .legend-table td {{ padding: .35rem .5rem; vertical-align: middle; }}
+  .legend-table td:first-child {{ width: 3rem; }}
+  .legend-hint {{ color: var(--muted); font-size: .75rem; padding-left: 1rem; }}
 </style>
 </head>
 <body>
@@ -571,6 +583,58 @@ def write_html(stats: dict):
         </thead>
         <tbody id="tbody"></tbody>
       </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Legende</h2>
+    <div class="legend-grid">
+
+      <div class="legend-block">
+        <div class="legend-title">A-Codes – Löschgrund</div>
+        <table class="legend-table">
+          <tr><td><span class="badge badge-A1">A1</span></td><td>Fehlende Relevanz – Person</td><td class="legend-hint">WP:RK, Relevanzkriterien, keine überregionale Relevanz</td></tr>
+          <tr><td><span class="badge badge-A2">A2</span></td><td>Fehlende Relevanz – Unternehmen / Organisation</td><td class="legend-hint">Unternehmensrelevanz, Umsatz, Mitarbeiterzahl</td></tr>
+          <tr><td><span class="badge badge-A3">A3</span></td><td>Werblicher / PR-Charakter</td><td class="legend-hint">WP:WWNI, Werbetext, Werbeflyer, Selbstdarstellung</td></tr>
+          <tr><td><span class="badge badge-A4">A4</span></td><td>Fehlende Belege</td><td class="legend-hint">unbelegt, Belege fehlen, keine Quellen</td></tr>
+          <tr><td><span class="badge badge-A5">A5</span></td><td>Relevanz Geographie / Infrastruktur</td><td class="legend-hint">Bahnhof, Ortsteil, Bundesstraße, Stadtteil</td></tr>
+          <tr><td><span class="badge badge-A6">A6</span></td><td>Redundanz / Weiterleitung</td><td class="legend-hint">bereits vorhanden, Doppelartikel, zusammenführen</td></tr>
+          <tr><td><span class="badge badge-A7">A7</span></td><td>Kategoriediskussion</td><td class="legend-hint">Umbenennung, Kategorisierung, WikiProjekt Kategorien</td></tr>
+          <tr><td><span class="badge badge-A8">A8</span></td><td>Urheberrechtsverletzung</td><td class="legend-hint">URV, Copyright, Plagiat, Lizenzverstoß</td></tr>
+          <tr><td><span class="badge badge-A9">A9</span></td><td>Qualitätsmangel</td><td class="legend-hint">kein Artikel, unleserlich, neuer Benutzer</td></tr>
+          <tr><td><span class="badge badge-A0">A0</span></td><td>Unklar / Sonstiges</td><td class="legend-hint">kein eindeutiges Muster erkannt</td></tr>
+        </table>
+      </div>
+
+      <div class="legend-cols">
+        <div class="legend-block">
+          <div class="legend-title">B-Codes – Artikeltyp</div>
+          <table class="legend-table">
+            <tr><td><span class="badge" style="background:#1f3a5f;color:#79b8ff">B1</span></td><td>Person (lebend)</td></tr>
+            <tr><td><span class="badge" style="background:#1f3a5f;color:#58a6ff">B2</span></td><td>Person (historisch)</td></tr>
+            <tr><td><span class="badge" style="background:#1a2f1a;color:#3fb950">B3</span></td><td>Unternehmen / Organisation</td></tr>
+            <tr><td><span class="badge" style="background:#3b2300;color:#d29922">B4</span></td><td>Veranstaltung / Event</td></tr>
+            <tr><td><span class="badge" style="background:#1a2f1a;color:#56d364">B5</span></td><td>Geographie / Infrastruktur</td></tr>
+            <tr><td><span class="badge" style="background:#2f1a2f;color:#bc8cff">B6</span></td><td>Kulturelles Werk (Film, Buch, Musik …)</td></tr>
+            <tr><td><span class="badge" style="background:#1c1c2f;color:#8b949e">B7</span></td><td>Kategorie / Vorlage / Wikipedia-intern</td></tr>
+            <tr><td><span class="badge" style="background:#1c1c1c;color:#6e7681">B8</span></td><td>Sonstiges / nicht eindeutig klassifiziert</td></tr>
+          </table>
+        </div>
+
+        <div class="legend-block">
+          <div class="legend-title">E-Codes – Ergebnis der Diskussion</div>
+          <table class="legend-table">
+            <tr><td><span class="badge badge-E1">E1</span></td><td>Gelöscht</td></tr>
+            <tr><td><span class="badge badge-E2">E2</span></td><td>Behalten (<em>bleibt</em>)</td></tr>
+            <tr><td><span class="badge badge-E3">E3</span></td><td>LAZ – Löschantrag zurückgezogen</td></tr>
+            <tr><td><span class="badge badge-E4">E4</span></td><td>BNR – in Benutzernamensraum verschoben</td></tr>
+            <tr><td><span class="badge badge-E5">E5</span></td><td>Weiterleitung eingerichtet</td></tr>
+            <tr><td><span class="badge badge-E6">E6</span></td><td>Noch offen / nicht abgearbeitet</td></tr>
+            <tr><td><span class="badge badge-E7">E7</span></td><td>SLA – Schnelllöschantrag</td></tr>
+          </table>
+        </div>
+      </div>
+
     </div>
   </section>
 
