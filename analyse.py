@@ -28,7 +28,7 @@ from datetime import date, timedelta, datetime
 # ---------------------------------------------------------------------------
 BASE_DIR  = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR  = os.path.join(BASE_DIR, "data")
-SITE_DIR  = os.path.join(BASE_DIR, "site")
+SITE_DIR  = os.path.join(BASE_DIR, "docs")
 CSV_PATH  = os.path.join(DATA_DIR, "rohdaten.csv")
 HTML_PATH = os.path.join(SITE_DIR, "index.html")
 
