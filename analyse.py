@@ -3,13 +3,17 @@
 """
 Wikipedia Löschkandidaten – Musteranalyse
 ==========================================
-Analysiert automatisch die letzten 180 Tage der deutschen Wikipedia-
-Löschdiskussionen (Stichprobe alle 5 Tage) und erzeugt:
+Analysiert automatisch die deutschen Wikipedia-Löschdiskussionen und erzeugt:
 
   data/rohdaten.csv   — kodierte Rohdaten (eine Zeile pro Diskussion)
-  site/index.html     — interaktive HTML-Auswertung (kein Server nötig)
+  docs/index.html     — interaktive HTML-Auswertung (kein Server nötig)
 
-Aufruf: python3 analyse.py
+Aufruf:
+  python3 analyse.py          Stichprobe: 180 Tage, alle 5 Tage  (~35 Abrufe, ca.  2 min)
+  python3 analyse.py --30     Vollständig: letzte  30 Tage        (~23 Abrufe, ca.  1 min)
+  python3 analyse.py --60     Vollständig: letzte  60 Tage        (~53 Abrufe, ca.  3 min)
+  python3 analyse.py --all    Vollständig: letzte 180 Tage        (~173 Abrufe, ca. 10 min)
+
 Keine externen Abhängigkeiten – nur Python 3.8+.
 """
 
@@ -17,6 +21,7 @@ import csv
 import json
 import os
 import re
+import sys
 import time
 import urllib.parse
 import urllib.request
@@ -45,11 +50,34 @@ DE_MONTHS = {
 }
 
 # ---------------------------------------------------------------------------
-# Stichprobendaten: letzte 180 Tage, alle 5 Tage, mind. 7 Tage alt
+# Modi & Zeitschätzungen
+# ---------------------------------------------------------------------------
+MODES = {
+    "default": dict(days_back=180, step=5,  label="Stichprobe 180 Tage (alle 5 Tage)", est="ca. 2 min"),
+    "30":      dict(days_back=30,  step=1,  label="Vollständig: letzte 30 Tage",        est="ca. 1 min"),
+    "60":      dict(days_back=60,  step=1,  label="Vollständig: letzte 60 Tage",        est="ca. 3 min"),
+    "all":     dict(days_back=180, step=1,  label="Vollständig: letzte 180 Tage",       est="ca. 10 min"),
+}
+
+def parse_mode() -> dict:
+    args = sys.argv[1:]
+    if "--help" in args or "-h" in args:
+        print(__doc__)
+        sys.exit(0)
+    if "--all" in args:
+        return MODES["all"]
+    if "--60" in args:
+        return MODES["60"]
+    if "--30" in args:
+        return MODES["30"]
+    return MODES["default"]
+
+# ---------------------------------------------------------------------------
+# Stichprobendaten: mind. 7 Tage alt (jüngere Seiten noch nicht abgeschlossen)
 # ---------------------------------------------------------------------------
 def get_sample_dates(days_back: int = 180, step: int = 5) -> list:
-    today = date.today()
-    cutoff = today - timedelta(days=7)   # jüngere Seiten noch nicht abgeschlossen
+    today  = date.today()
+    cutoff = today - timedelta(days=7)
     start  = today - timedelta(days=days_back)
     dates, current = [], start
     while current <= cutoff:
@@ -293,11 +321,12 @@ def extract_sections(wikitext: str) -> list:
 # ---------------------------------------------------------------------------
 # Hauptanalyse
 # ---------------------------------------------------------------------------
-def run_analysis() -> list:
-    sample_dates = get_sample_dates()
+def run_analysis(mode: dict) -> list:
+    sample_dates = get_sample_dates(mode["days_back"], mode["step"])
     total = len(sample_dates)
+    print(f"Modus:           {mode['label']}  ({mode['est']})")
     print(f"Analysezeitraum: {sample_dates[0]} bis {sample_dates[-1]}")
-    print(f"Stichprobentage: {total} (alle 5 Tage, mind. 7 Tage alt)\n")
+    print(f"Stichprobentage: {total}\n")
 
     rows = []
     for idx, d in enumerate(sample_dates, 1):
@@ -339,7 +368,7 @@ def run_analysis() -> list:
             count += 1
 
         print(f"{count} Fälle")
-        time.sleep(2)
+        time.sleep(3)
 
     print(f"\nGesamt: {len(rows)} Fälle aus {total} Stichprobentagen.\n")
     return rows
@@ -519,6 +548,7 @@ def write_html(stats: dict):
 <header>
   <h1>Wikipedia Löschdiskussionen – Musteranalyse</h1>
   <p id="subtitle">Lade Daten…</p>
+  <p style="margin-top:.5rem;font-size:.8rem;color:var(--muted)">Ein Projekt von <a href="https://github.com/profmanagement" target="_blank">Profmanagement</a></p>
 </header>
 
 <div class="container">
@@ -641,8 +671,10 @@ def write_html(stats: dict):
 </div>
 
 <footer>
+  &copy; <a href="https://github.com/profmanagement" target="_blank">Profmanagement</a> &nbsp;·&nbsp;
   Datenquelle: <a href="https://de.wikipedia.org/wiki/Wikipedia:L%C3%B6schkandidaten" target="_blank">Wikipedia:Löschkandidaten</a> &nbsp;·&nbsp;
-  Lizenz der Wikipedia-Inhalte: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a> &nbsp;·&nbsp;
+  Wikipedia-Inhalte: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a> &nbsp;·&nbsp;
+  <a href="https://github.com/profmanagement/wp-loeschdiskussion" target="_blank">Quellcode auf GitHub</a> &nbsp;·&nbsp;
   Generiert am <span id="genDate"></span>
 </footer>
 
@@ -818,8 +850,9 @@ renderTable();
 # Einstiegspunkt
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    rows = run_analysis()
+    mode = parse_mode()
+    rows = run_analysis(mode)
     write_csv(rows)
     stats = build_stats(rows)
     write_html(stats)
-    print("\nFertig. Öffne site/index.html im Browser.")
+    print("\nFertig. Öffne docs/index.html im Browser.")
