@@ -433,12 +433,153 @@ def build_stats(rows: list) -> dict:
     }
 
 
+# ---------------------------------------------------------------------------
+# Kurzauswertung: Hinweise je Löschgrund, datengestützt aus E1-Fällen
+# ---------------------------------------------------------------------------
+ADVICE = {
+    "A1": {
+        "problem": "Artikel über Personen, deren überregionale Bedeutung nicht nachgewiesen ist. "
+                   "Betroffen sind häufig Sportler:innen unterer Ligen, lokale Politiker:innen, "
+                   "Influencer:innen sowie Personen, die nur in Eigenveröffentlichungen erwähnt werden.",
+        "tip":     "WP:RK vor dem Anlegen prüfen. Mindestens ein harter Relevanzpunkt muss belegbar sein: "
+                   "Buchveröffentlichung in einem anerkannten Verlag, mehrfache unabhängige Medienberichterstattung "
+                   "auf nationaler Ebene oder ein öffentliches Amt mit eigenständiger enzyklopädischer Bedeutung. "
+                   "Lokale Berichterstattung allein reicht nicht.",
+    },
+    "A4": {
+        "problem": "Aussagen im Artikel sind nicht mit Einzelnachweisen belegt oder stützen sich "
+                   "ausschließlich auf Primärquellen (eigene Website, Pressemitteilungen).",
+        "tip":     "Jede nicht-triviale Aussage braucht einen unabhängigen Beleg. "
+                   "Eigene Websites, Social-Media-Profile oder Unternehmensbroschüren gelten nicht als Belege "
+                   "im Wikipedia-Sinne. Artikel ohne Einzelnachweise werden erfahrungsgemäß schnell gestellt.",
+    },
+    "A9": {
+        "problem": "Artikel ist zu kurz, unvollständig oder nicht im enzyklopädischen Stil verfasst. "
+                   "Typisch: Erstbeiträge neuer Nutzer:innen, die direkt einen Artikel anlegen.",
+        "tip":     "Entwurf zunächst im Benutzernamensraum (BNR) ausarbeiten und von erfahrenen "
+                   "Nutzer:innen prüfen lassen. Wikipedia:Wie schreibe ich gute Artikel lesen. "
+                   "Ein Artikel sollte mindestens Einleitung, Fließtext und Belege enthalten.",
+    },
+    "A5": {
+        "problem": "Infrastrukturartikel (Bahnhöfe, Straßen, Brücken) ohne eigenständige "
+                   "enzyklopädische Darstellung in unabhängigen Quellen.",
+        "tip":     "Kleine Infrastrukturobjekte sind nur relevant, wenn sie in anerkannten "
+                   "Sekundärquellen (Fachbücher, überregionale Medien) eigenständig behandelt werden. "
+                   "Reine Existenz reicht nicht für einen eigenen Artikel.",
+    },
+    "A3": {
+        "problem": "Artikel liest sich wie ein Werbetext: Superlative, unkritische Selbstdarstellung, "
+                   "fehlende neutrale Außenperspektive.",
+        "tip":     "Neutraler Ton ist Pflicht. Keine Marketing-Sprache, keine Superlative, "
+                   "keine ausschließlich positiven Formulierungen. "
+                   "Quellen müssen unabhängig und nicht werblich sein (kein Presseportal, keine PR-Agenturen).",
+    },
+    "A2": {
+        "problem": "Unternehmensartikel unterschreiten die Relevanzkriterien: zu wenig Mitarbeiter, "
+                   "zu geringer Umsatz, keine nachgewiesene Marktstellung.",
+        "tip":     "WP:RK#U kennen: Umsatz über 100 Mio. €, mehr als 1.000 Mitarbeiter "
+                   "oder Marktführerschaft in einer Branche sind typische Eintrittsschwellen. "
+                   "Regionale Unternehmen ohne überregionale Berichterstattung werden fast immer gelöscht.",
+    },
+    "A7": {
+        "problem": "Kategorienamen oder -strukturen entsprechen nicht den Wikipedia-Konventionen "
+                   "oder sind redundant zu bestehenden Kategorien.",
+        "tip":     "Vor dem Anlegen neuer Kategorien die Diskussionsseiten des WikiProjekts Kategorien "
+                   "konsultieren. Umbenennung ist in der Regel aufwändiger als Prävention.",
+    },
+    "A8": {
+        "problem": "Text oder Bilder wurden ohne ausreichende Lizenz eingestellt oder "
+                   "aus urheberrechtlich geschützten Quellen kopiert.",
+        "tip":     "Nur Inhalte unter freier Lizenz (CC BY-SA, gemeinfrei) verwenden. "
+                   "Texte nie aus anderen Quellen kopieren – auch nicht in eigener Übersetzung. "
+                   "Bilder nur aus Wikimedia Commons einbinden.",
+    },
+    "A6": {
+        "problem": "Inhalt des Artikels ist bereits in einem anderen Artikel enthalten "
+                   "oder beschreibt dasselbe Thema unter anderem Namen.",
+        "tip":     "Vor dem Anlegen die Wikipedia-Suche nutzen und prüfen, "
+                   "ob das Thema bereits behandelt wird. Im Zweifel eine Weiterleitung anlegen statt eines neuen Artikels.",
+    },
+    "A0": {
+        "problem": "Kein eindeutiger Löschgrund durch automatische Analyse erkennbar – "
+                   "heterogene Gruppe aus gemischten oder untypisch formulierten Diskussionen.",
+        "tip":     "Manuelle Sichtung empfohlen.",
+    },
+}
+
+
+def build_kurzauswertung_html(rows: list, stats: dict) -> str:
+    total      = stats["total"]
+    deleted    = [r for r in rows if r["Ergebnis-Code"] == "E1"]
+    n_deleted  = len(deleted)
+    del_pct    = n_deleted / total * 100 if total else 0
+
+    # Häufigkeit je A-Code unter den gelöschten Fällen
+    a_counts = defaultdict(int)
+    for r in deleted:
+        a_counts[r["A-Code"]] += 1
+    top_reasons = sorted(a_counts.items(), key=lambda x: x[1], reverse=True)
+
+    # Intensivstes Beispiel je A-Code (aus allen Fällen, nicht nur E1)
+    top_ex = {}
+    for r in rows:
+        a = r["A-Code"]
+        if a not in top_ex or r["Intensität"] > top_ex[a]["Intensität"]:
+            top_ex[a] = r
+
+    cards_html = ""
+    for rank, (code, count) in enumerate(top_reasons, 1):
+        if count == 0:
+            continue
+        pct     = count / n_deleted * 100
+        advice  = ADVICE.get(code, {})
+        problem = advice.get("problem", "")
+        tip     = advice.get("tip", "")
+        label   = A_LABELS.get(code, code)
+        ex      = top_ex.get(code)
+        ex_html = ""
+        if ex:
+            ex_html = (
+                f'<div class="auswertung-example">'
+                f'Intensivstes Beispiel: '
+                f'<a href="{ex["URL"]}" target="_blank">{ex["Artikelname"]}</a>'
+                f' &nbsp;·&nbsp; {ex["Intensität"]} Beiträge'
+                f'</div>'
+            )
+        cards_html += f"""
+    <div class="auswertung-card">
+      <div class="auswertung-header">
+        <span class="rank">#{rank}</span>
+        <span class="badge badge-{code}">{code}</span>
+        <span class="auswertung-title">{label}</span>
+        <span class="auswertung-stat">{count} Fälle &nbsp;·&nbsp; {pct:.0f}&thinsp;% der Löschungen</span>
+      </div>
+      <p class="auswertung-problem">{problem}</p>
+      <div class="auswertung-tip"><strong>Was vermeiden?</strong> {tip}</div>
+      {ex_html}
+    </div>"""
+
+    return f"""
+  <section>
+    <h2>Kurzauswertung – Was führt zur Löschung?</h2>
+    <p class="auswertung-intro">
+      Von <strong>{total}</strong> analysierten Diskussionen wurden
+      <strong>{n_deleted}</strong> ({del_pct:.0f}&thinsp;%) gelöscht.
+      Die häufigsten Gründe und was man daraus lernen kann:
+    </p>
+    <div class="auswertung-grid">
+      {cards_html}
+    </div>
+  </section>"""
+
+
 def write_html(stats: dict):
     # Alle JSON-Strings vor dem f-string definieren, damit die Interpolation greift
-    data_json      = json.dumps(stats, ensure_ascii=False)
-    a_labels_json  = json.dumps(A_LABELS, ensure_ascii=False)
-    b_labels_json  = json.dumps(B_LABELS, ensure_ascii=False)
-    e_labels_json  = json.dumps(E_LABELS, ensure_ascii=False)
+    data_json         = json.dumps(stats, ensure_ascii=False)
+    a_labels_json     = json.dumps(A_LABELS, ensure_ascii=False)
+    b_labels_json     = json.dumps(B_LABELS, ensure_ascii=False)
+    e_labels_json     = json.dumps(E_LABELS, ensure_ascii=False)
+    kurzauswertung    = build_kurzauswertung_html(stats.get("rows", []), stats)
 
     html = f"""<!DOCTYPE html>\n<html lang="de">
 <head>
@@ -530,6 +671,18 @@ def write_html(stats: dict):
 
   footer {{ text-align: center; padding: 2rem; color: var(--muted); font-size: .8rem; border-top: 1px solid var(--border); }}
 
+  .auswertung-intro {{ margin-bottom: 1.25rem; line-height: 1.7; }}
+  .auswertung-grid {{ display: flex; flex-direction: column; gap: 1rem; }}
+  .auswertung-card {{ background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.1rem 1.25rem; }}
+  .auswertung-header {{ display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin-bottom: .6rem; }}
+  .rank {{ font-size: .75rem; font-weight: 700; color: var(--muted); min-width: 1.4rem; }}
+  .auswertung-title {{ font-weight: 600; font-size: .9rem; flex: 1; }}
+  .auswertung-stat {{ font-size: .78rem; color: var(--muted); white-space: nowrap; }}
+  .auswertung-problem {{ color: var(--muted); font-size: .83rem; margin-bottom: .6rem; line-height: 1.6; }}
+  .auswertung-tip {{ background: #0d2137; border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: .6rem .9rem; font-size: .83rem; line-height: 1.6; margin-bottom: .5rem; }}
+  .auswertung-tip strong {{ color: var(--accent); }}
+  .auswertung-example {{ font-size: .78rem; color: var(--muted); margin-top: .4rem; }}
+
   .legend-grid {{ display: flex; flex-direction: column; gap: 1.25rem; }}
   .legend-cols {{ display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }}
   @media (max-width: 700px) {{ .legend-cols {{ grid-template-columns: 1fr; }} }}
@@ -615,6 +768,8 @@ def write_html(stats: dict):
       </table>
     </div>
   </section>
+
+{kurzauswertung}
 
   <section>
     <h2>Legende</h2>
