@@ -606,6 +606,7 @@ def write_html(stats: dict):
   a:hover {{ text-decoration: underline; }}
 
   header {{ padding: 2rem 2rem 1rem; border-bottom: 1px solid var(--border); }}
+  header .inner {{ max-width: 1200px; margin: 0 auto; }}
   header h1 {{ font-size: 1.6rem; font-weight: 700; }}
   header p  {{ color: var(--muted); margin-top: .25rem; }}
 
@@ -718,22 +719,24 @@ def write_html(stats: dict):
 <body>
 
 <header>
-  <h1>Wikipedia Löschdiskussionen – Musteranalyse</h1>
-  <p id="subtitle">Lade Daten…</p>
-  <p style="margin-top:.5rem;font-size:.8rem;color:var(--muted)">Ein Projekt von <a href="https://github.com/profmanagement" target="_blank">Profmanagement</a></p>
-  <p style="margin-top:1rem;max-width:720px;font-size:.88rem;line-height:1.7;color:var(--muted)">
-    <strong style="color:var(--text)">Problem:</strong>
-    Täglich werden in der deutschen Wikipedia Dutzende Artikel zur Löschung vorgeschlagen –
-    doch eine systematische Auswertung dieser Diskussionen fehlt. Für viele Autorinnen und Autoren
-    sind Löschungen frustrierend und oft überraschend, weil es keine aggregierte Übersicht über
-    die häufigsten Gründe gibt.
-    &nbsp;
-    <strong style="color:var(--text)">Lösung:</strong>
-    Dieses Tool ruft die Wikipedia-Löschdiskussionen der letzten 180 Tage automatisch ab,
-    kodiert jede Diskussion nach Löschgrund, Artikeltyp und Ergebnis – und macht die Muster
-    sichtbar. Das Ergebnis: eine datengestützte Antwort darauf, warum Artikel gelöscht werden
-    und was man konkret dagegen tun kann.
-  </p>
+  <div class="inner">
+    <h1>Wikipedia Löschdiskussionen – Musteranalyse</h1>
+    <p id="subtitle">Lade Daten…</p>
+    <p style="margin-top:.5rem;font-size:.8rem;color:var(--muted)">Ein Projekt von <a href="https://github.com/profmanagement" target="_blank">Profmanagement</a></p>
+    <p style="margin-top:1rem;max-width:720px;font-size:.88rem;line-height:1.7;color:var(--muted)">
+      <strong style="color:var(--text)">Problem:</strong>
+      Täglich werden in der deutschen Wikipedia Dutzende Artikel zur Löschung vorgeschlagen –
+      doch eine systematische Auswertung dieser Diskussionen fehlt. Für viele Autorinnen und Autoren
+      sind Löschungen frustrierend und oft überraschend, weil es keine aggregierte Übersicht über
+      die häufigsten Gründe gibt.
+      &nbsp;
+      <strong style="color:var(--text)">Lösung:</strong>
+      Dieses Tool ruft die Wikipedia-Löschdiskussionen der letzten 180 Tage automatisch ab,
+      kodiert jede Diskussion nach Löschgrund, Artikeltyp und Ergebnis – und macht die Muster
+      sichtbar. Das Ergebnis: eine datengestützte Antwort darauf, warum Artikel gelöscht werden
+      und was man konkret dagegen tun kann.
+    </p>
+  </div>
 </header>
 
 <div class="container">
